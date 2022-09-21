@@ -8,11 +8,13 @@ from backend import *
 def set_matrix(set_random=False):
     while True:
         try:
-            matr_col = int(str(C_matrixolumn.get()))    # кол-во столбцов и строк
+            global time_limit
+            matr_col = int(str(matrix_column.get()))    # кол-во столбцов и строк
             matr_row = int(str(matrix_row.get()))
+            time_limit = int(str(time_limit_widget.get()))
         except:
             messagebox.showerror(title="Ошибка ввода", 
-                message="Значения строк и столбцов должны иметь целые значения")
+                message="Значения строк и столбцов, как и ограничение по времени должны иметь целые значения")
             return
         if matr_col > 1 and matr_col <= 10 and matr_row > 1 and matr_row <= 10:
             break
@@ -71,9 +73,32 @@ def T_matrixransformation():
                 messagebox.showerror(title="Ошибка ввода", 
                     message="Значения элементов матриц должны иметь целые значения")
                 return
-    #first_rebase_matr = rebase_matrix(C, T)
+    C1, T1 = rebase_matrix(C_matrix_value, T_matrix_value)
+    C2, T2 = second_rebase(C1, T1, time_limit)
+    # фреймы для вывода преобразованных матриц
+    frame_C_first_rebase = tk.Frame(root, width=20*len(C_matrix[0]), height=20+20*len(C_matrix))#, background="#b22222")
+    frame_C_first_rebase.place(x=40+20*len(C_matrix[0]), y=100)
+    frame_T_first_rebase = tk.Frame(root, width=20*len(C_matrix[0]), height=20+20*len(T_matrix))#s, background="#b22222")
+    frame_T_first_rebase.place(x=40+20*len(T_matrix[0]), y=140+20*len(C_matrix))
+
+    #frame_C_second_rebase = tk.Frame(root, width=20*len(C_matrix[0]), height=20+20*len(C_matrix))#, background="#b22222")
+    #frame_C_second_rebase.place(x=60+2*20*len(C_matrix[0]), y=100)
+    #frame_T_second_rebase = tk.Frame(root, width=20*len(T_matrix[0]), height=20+20*len(T_matrix))#, background="#b22222")
+    #frame_T_second_rebase.place(x=60+2*20*len(T_matrix[0]), y=140+20*len(C_matrix))    
+
+    ttk.Label(frame_C_first_rebase, text="Матрица C первое преобразование").place(x=0, y=0)
+    ttk.Label(frame_T_first_rebase, text="Матрица T первое преобразование").place(x=0, y=0)
+    C_first_rebase_output = []; T_first_rebase_output = []
+    for i in range(len(C_matrix_value)):
+        C_first_rebase_output.append([]); T_first_rebase_output.append([])
+        for j in range(len(C_matrix_value[i])):
+            temp_C_matrix = tk.Label(frame_C_first_rebase, width=3, text=C_matrix_value[i][j]); temp_C_matrix.place(x=20*j, y=20+20*i)
+            temp_T_matrix = tk.Label(frame_T_first_rebase, width=3, text=T_matrix_value[i][j]); temp_T_matrix.place(x=20*j, y=20+20*i)
+            C_first_rebase_output[i].append(temp_C_matrix); T_first_rebase_output[i].append(temp_T_matrix)
+
+
     
-    
+
 
 
 root = Tk()
@@ -84,11 +109,12 @@ frm.grid(column=10, row=10)
 
 
 
-ttk.Label(frm, text="Программа для построения дерева решений").grid(column=0, row=0)
-ttk.Label(frm, text="Введите количество строк матрицы").grid(column=0, row=1)
-ttk.Label(frm, text="Введите количество столбцов матрицы").grid(column=0, row=2)
-matrix_row = tk.Entry(frm); matrix_row.grid(column=1, row=1)
-C_matrixolumn = tk.Entry(frm); C_matrixolumn.grid(column=1, row=2)
+ttk.Label(frm, text="Введите количество строк матрицы").grid(column=0, row=0)
+ttk.Label(frm, text="Введите количество столбцов матрицы").grid(column=0, row=1)
+ttk.Label(frm, text="Введите ограничение по времени. По умолчанию 26").grid(column=0, row=2)
+matrix_row = tk.Entry(frm); matrix_row.grid(column=1, row=0)
+matrix_column = tk.Entry(frm); matrix_column.grid(column=1, row=1)
+time_limit_widget = tk.Entry(frm); time_limit_widget.grid(column=1, row=2)
 
 tk.Button(frm, text="Задать матрицу", command=set_matrix).grid(column=10, row=8)
 tk.Button(frm, text="Задать матрицу со случайными числами", command=lambda: set_matrix(set_random=True)).grid(column=10, row=9)
