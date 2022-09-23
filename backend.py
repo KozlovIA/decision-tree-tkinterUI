@@ -96,7 +96,7 @@ def graph_dec_tree(dec_tree):
           if left_x > x: left_x = x
           if right_x < x: right_x = x
           coord_line_end[i].append([x,y])
-          plt.text(x-0.35, y-0.1, dec_tree[i][j], fontdict=font)
+          plt.text(x-0.3, y-0.1, dec_tree[i][j], fontdict=font)
 
   for i in range(len_tree-1): # рисуем линии
       for j in range(len(coord_line_end[i+1])):

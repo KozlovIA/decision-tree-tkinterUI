@@ -3,13 +3,10 @@ from tkinter import *
 from tkinter import ttk, messagebox
 import random as rnd
 from backend import *
-import matplotlib.pyplot as plt
 
-matrix_rebase = False
 
 def del_all_obj():
     try:
-        matrix_rebase = False
         frame_C_matr.destroy()
         frame_T_matr.destroy()
         frame_C_first_rebase.destroy()
@@ -93,45 +90,48 @@ def matrix_transformation():
                 return
     global C1, C2, T1, T2
     C1, T1 = rebase_matrix(C_matrix_value, T_matrix_value)
-    C2, T2 = second_rebase(C_matrix_value, C_matrix_value, time_limit)  # так как значения входных параметров изменяются внутри функции
+
+
     # фреймы для вывода преобразованных матриц
     global frame_C_first_rebase, frame_T_first_rebase, frame_C_second_rebase, frame_T_second_rebase
     frame_C_first_rebase = tk.Frame(root, width=25*len(C_matrix[0]), height=20+20*len(C_matrix))#, background="#b22222")
     frame_C_first_rebase.place(x=40+20*len(C_matrix[0]), y=120)
     frame_T_first_rebase = tk.Frame(root, width=25*len(C_matrix[0]), height=20+20*len(T_matrix))#, background="#b22222")
     frame_T_first_rebase.place(x=40+20*len(T_matrix[0]), y=160+20*len(C_matrix))
+    ttk.Label(frame_C_first_rebase, text="C1").place(x=0, y=0)
+    ttk.Label(frame_T_first_rebase, text="T1").place(x=0, y=0)
+    C_first_rebase_output = []; T_first_rebase_output = []
+    for i in range(len(C_matrix_value)):
+        C_first_rebase_output.append([]); T_first_rebase_output.append([])
+        for j in range(len(C_matrix_value[i])):
+            # Первое преобразование
+            temp_C_matrix = tk.Label(frame_C_first_rebase, width=3, text=C1[i][j]); temp_C_matrix.place(x=25*j, y=20+20*i)
+            temp_T_matrix = tk.Label(frame_T_first_rebase, width=3, text=T1[i][j]); temp_T_matrix.place(x=25*j, y=20+20*i)
+            C_first_rebase_output[i].append(temp_C_matrix); T_first_rebase_output[i].append(temp_T_matrix)
+
+    C2, T2 = second_rebase(C1, T1, time_limit)  # значения входных параметров изменяются внутри функции
 
     frame_C_second_rebase = tk.Frame(root, width=25*len(C_matrix[0]), height=20+20*len(C_matrix))#, background="#b22222")
     frame_C_second_rebase.place(x=120+2*20*len(C_matrix[0]), y=120)
     frame_T_second_rebase = tk.Frame(root, width=25*len(T_matrix[0]), height=20+20*len(T_matrix))#, background="#b22222")
     frame_T_second_rebase.place(x=120+2*20*len(T_matrix[0]), y=160+20*len(C_matrix))    
 
-    ttk.Label(frame_C_first_rebase, text="C1").place(x=0, y=0)
-    ttk.Label(frame_T_first_rebase, text="T1").place(x=0, y=0)
     ttk.Label(frame_C_second_rebase, text="C2").place(x=0, y=0)
     ttk.Label(frame_T_second_rebase, text="T2").place(x=0, y=0)
-    C_first_rebase_output = []; T_first_rebase_output = []
     C_second_rebase_output = []; T_second_rebase_output = []
     for i in range(len(C_matrix_value)):
-        C_first_rebase_output.append([]); T_first_rebase_output.append([])
         C_second_rebase_output.append([]); T_second_rebase_output.append([])
         for j in range(len(C_matrix_value[i])):
-            # Первое преобразование
-            temp_C_matrix = tk.Label(frame_C_first_rebase, width=3, text=C1[i][j]); temp_C_matrix.place(x=25*j, y=20+20*i)
-            temp_T_matrix = tk.Label(frame_T_first_rebase, width=3, text=T1[i][j]); temp_T_matrix.place(x=25*j, y=20+20*i)
-            C_first_rebase_output[i].append(temp_C_matrix); T_first_rebase_output[i].append(temp_T_matrix)
             # Второе преобразование
             temp_C_matrix = tk.Label(frame_C_second_rebase, width=3, text=C2[i][j]); temp_C_matrix.place(x=25*j, y=20+20*i)
             temp_T_matrix = tk.Label(frame_T_second_rebase, width=3, text=T2[i][j]); temp_T_matrix.place(x=25*j, y=20+20*i)
             C_second_rebase_output[i].append(temp_C_matrix); T_second_rebase_output[i].append(temp_T_matrix)
-    matrix_rebase = True
 
 
 def decision_tree_graph():
     """Выводит график дерева решений в окно приложения"""
-    if matrix_rebase == False:
-        messagebox.showerror(title="Ошибка!", 
-                    message="Сначала задайте матрицы")
+    if frame_T_second_rebase.winfo_exists() != 1:
+        messagebox.showerror(title="Ошибка!", message="Сначала задайте матрицы")
         return
     dec_tree = decision_tree(C2, T2)     
     graph_dec_tree(dec_tree)
@@ -140,13 +140,13 @@ def decision_tree_graph():
     img = PhotoImage(file="decision_tree.png")
     dec_tree_graph = Label(root, image=img)
     dec_tree_graph.image_ref = img
-    dec_tree_graph.place(x=700, y=0)
+    dec_tree_graph.place(x=800, y=0)
             
 
 
 
 root = Tk()
-root.geometry('1400x600+200+100')    # ширина на высоту и сколько пикселей от верхнего левого угла
+root.geometry('1450x600+200+100')    # ширина на высоту и сколько пикселей от верхнего левого угла
 root.title("Дерево решений")
 frm = ttk.Frame(root, padding=10)   # основная рамка
 frm.grid(column=10, row=10)
@@ -160,9 +160,9 @@ matrix_row = tk.Entry(frm); matrix_row.grid(column=1, row=0)
 matrix_column = tk.Entry(frm); matrix_column.grid(column=1, row=1)
 time_limit_widget = tk.Entry(frm); time_limit_widget.grid(column=1, row=2)
 
-tk.Button(frm, text="Задать матрицу", command=set_matrix, width=35).grid(column=2, row=0)
-tk.Button(frm, text="Задать матрицу со случайными числами", command=lambda: set_matrix(set_random=True), width=35).grid(column=2, row=1)
-tk.Button(frm, text="Преобразовать матрицы", command=matrix_transformation, width=35).grid(column=2, row=2)
-tk.Button(frm, text="Построить дерево решений", command=decision_tree_graph, width=35).grid(column=2, row=3)
+tk.Button(root, text="Задать матрицу", command=set_matrix, width=35).place(x=370, y=10)
+tk.Button(root, text="Задать матрицу со случайными числами", command=lambda: set_matrix(set_random=True), width=35).place(x=370, y=35)
+tk.Button(root, text="Преобразовать матрицы", command=matrix_transformation, width=35).place(x=370, y=60)
+tk.Button(root, text="Построить дерево решений", command=decision_tree_graph, width=35).place(x=370, y=85)
 root.mainloop()
 

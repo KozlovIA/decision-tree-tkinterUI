@@ -1,2 +1,7 @@
 Примеры
 test.py
+__pycache__
+build
+dist
+UI.spec
+UI — ярлык.lnk
