@@ -1,4 +1,5 @@
 import numpy as np
+import matplotlib.pyplot as plt
 
 def rebase_matrix(C, T):
   """1-е преобразование матрицы"""
@@ -60,6 +61,51 @@ def decision_tree(C, T):
       temp_tree.append([Csumm, Tsumm])
     dec_tree.append(temp_tree)
   return dec_tree
+
+def graph_dec_tree(dec_tree):
+  """Функция сохраняет график дерева решений в файл decision_tree.png
+  dec_tree - Входной параметр, дерево решений в виде списка со списками [[[]], []]"""
+  fig, ax = plt.subplots(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
+  plt.title("Дерево решений")
+
+  ax.axes.xaxis.set_visible(False)
+  ax.axes.yaxis.set_visible(False)
+
+  font = {'family': 'fantasy',
+          'color':  'black',
+          'weight': 'normal',
+          'size': 10,
+          }
+  optimal = []
+  for i in range(len(dec_tree)):
+      optimal.append(dec_tree[i][0])
+      for j in range(len(dec_tree[i])):
+          if sum(optimal[i]) > sum(dec_tree[i][j]): optimal[i] = dec_tree[i][j]
+
+  len_tree = len(dec_tree)
+  opt_coord_line = []; coord_line_end = []
+  left_x = right_x = 0
+  for i, y in zip(range(len_tree), range(2*len_tree, 0, -2)):     # рисуем точки и записываем координаты для линий между ними
+      len_layer = len(dec_tree[i])
+      coord_line_end.append([])
+      for j, x in zip(range(len_layer), range(-len_layer, len_layer+1, 2)):
+          if optimal[i] == dec_tree[i][j]:
+              opt_coord_line.append([x, y])
+          if len_layer % 2 == 0 and x == 0: continue
+          plt.scatter(x, y, color='green', s=1000, marker='o')
+          if left_x > x: left_x = x
+          if right_x < x: right_x = x
+          coord_line_end[i].append([x,y])
+          plt.text(x-0.35, y-0.1, dec_tree[i][j], fontdict=font)
+
+  for i in range(len_tree-1): # рисуем линии
+      for j in range(len(coord_line_end[i+1])):
+          x1, y1, x2, y2 =  opt_coord_line[i] + coord_line_end[i+1][j]
+          ax.plot([x1, x2], [y1, y2], linestyle = '-', linewidth = 2, color="green")
+
+  plt.xlim(left_x-0.75, right_x+0.75)
+  plt.ylim(0, 2*len_tree+1.5)
+  plt.savefig("decision_tree.png")
 
 
 if __name__ == "__main__":
