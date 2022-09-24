@@ -14,6 +14,7 @@ def del_all_obj():
         frame_C_second_rebase.destroy()
         frame_T_second_rebase.destroy()
         dec_tree_graph.destroy()
+        frame_nodes.destroy()
     except:
         print("Удаление невозможно")
 
@@ -66,7 +67,12 @@ def set_matrix(set_random=False):
 
 
 def matrix_transformation():
-    """Произваодит вывод преобразованных матриц"""
+    """Производит вывод преобразованных матриц"""
+    try:
+        time_limit = float(str(time_limit_widget.get()))  # ограничение по времени
+    except:
+        messagebox.showerror(title="Ошибка ввода", 
+            message="Значение ограничения по времени должно быть вещественным.")
     global C_matrix_value, T_matrix_value
     C_matrix_value = []; T_matrix_value = []
     for i in range(len(C_matrix)):
@@ -129,19 +135,33 @@ def matrix_transformation():
 
 
 def decision_tree_graph():
-    """Выводит график дерева решений в окно приложения"""
+    """Выводит график дерева решений в окно приложения, а так же узлы решения для задач"""
     if frame_T_second_rebase.winfo_exists() != 1:
         messagebox.showerror(title="Ошибка!", message="Сначала задайте матрицы")
         return
-    dec_tree = decision_tree(C2, T2)     
-    graph_dec_tree(dec_tree)
+    try:
+        dec_tree, nodes = decision_tree(C2, T2)
+        graph_dec_tree(dec_tree)
+    except:
+        messagebox.showerror(title="Ошибка построения", 
+                    message="Попробуйте увеличить ограничение по времени и снова нажмите преобразовать матрицы")
+        return
 
     global dec_tree_graph
     img = PhotoImage(file="decision_tree.png")
     dec_tree_graph = Label(root, image=img)
     dec_tree_graph.image_ref = img
     dec_tree_graph.place(x=800, y=0)
-            
+    
+    # Узлы решений
+    global frame_nodes
+    frame_nodes = tk.Frame(root, width=50+20*len(nodes), height=40)#, background="#b22222")
+    frame_nodes.place(x=850, y=500)
+    ttk.Label(frame_nodes, text="Задачи").place(x=0, y=0)
+    ttk.Label(frame_nodes, text="Узлы").place(x=0, y=20)
+    for i in range(len(nodes)):
+        ttk.Label(frame_nodes, text=i+1, width=3).place(x=50+20*i, y=0)
+        ttk.Label(frame_nodes, text=nodes[i], width=3).place(x=50+20*i, y=20)
 
 
 
@@ -160,9 +180,9 @@ matrix_row = tk.Entry(frm); matrix_row.grid(column=1, row=0)
 matrix_column = tk.Entry(frm); matrix_column.grid(column=1, row=1)
 time_limit_widget = tk.Entry(frm); time_limit_widget.grid(column=1, row=2)
 
-tk.Button(root, text="Задать матрицу", command=set_matrix, width=35).place(x=370, y=10)
-tk.Button(root, text="Задать матрицу со случайными числами", command=lambda: set_matrix(set_random=True), width=35).place(x=370, y=35)
-tk.Button(root, text="Преобразовать матрицы", command=matrix_transformation, width=35).place(x=370, y=60)
-tk.Button(root, text="Построить дерево решений", command=decision_tree_graph, width=35).place(x=370, y=85)
+tk.Button(root, text="Задать матрицы", command=set_matrix, width=45).place(x=370, y=10)
+tk.Button(root, text="Задать матрицы со случайными числами", command=lambda: set_matrix(set_random=True), width=45).place(x=370, y=35)
+tk.Button(root, text="Преобразовать матрицы", command=matrix_transformation, width=45).place(x=370, y=60)
+tk.Button(root, text="Построить дерево решений и таблицу задача-узел", command=decision_tree_graph, width=45).place(x=370, y=85)
 root.mainloop()
 

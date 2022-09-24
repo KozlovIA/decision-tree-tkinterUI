@@ -19,7 +19,11 @@ def minimum(l):
   str_l = str_l.replace("'-',", '')
   str_l = str_l.replace("'-'", '')
   new_list = eval(str_l)
-  return min(new_list)
+  try:
+    min_ = min(new_list)
+  except:
+    return False
+  return min_
 
 
 
@@ -41,26 +45,37 @@ def second_rebase(C, T, Tz):
 
 
 def decision_tree(C, T):
-  """Построение дерева решений
+  """Возвращает дерево решений и узлы в списке, нумерация в списке от нуля, задачи начинаются от единицы
   Складываются элемент из строки и минимальные элементы всех остальных строк
   Входные данные:
   C - матрица "стоимости"
   T - матрица "времени"
   """
   dec_tree = list()
+  nodes = []   # узлы. Для i-й элемент = i+1 задача и её узел решения
   for i in range(len(C)):
+    min_node = float(); first_pass = True
     temp_tree = list()  # один слой дерева
+    temp_node = int()
     for j in range(len(C[i])):
       Csumm = 0; Tsumm = 0
       if C[i][j] == '-':  # если элемента нет, то соответсвенно пропускаем
         continue
       Csumm = C[i][j]; Tsumm = T[i][j]
       for r in range(len(C)):
-        if r != i:
+        if r != i and minimum(C[r]) != False:
           Csumm += minimum(C[r]); Tsumm += minimum(T[r])
+      if first_pass:
+        temp_node = j
+        min_node = Csumm + Tsumm
+        first_pass = False
+      elif min_node > Csumm + Tsumm:
+        temp_node = j
+        min_node = Csumm + Tsumm
       temp_tree.append([Csumm, Tsumm])
+    nodes.append(temp_node+1) # +1 т.к. номер задачи начинается от 1, а не от нуля
     dec_tree.append(temp_tree)
-  return dec_tree
+  return dec_tree, nodes
 
 def graph_dec_tree(dec_tree):
   """Функция сохраняет график дерева решений в файл decision_tree.png
@@ -89,15 +104,14 @@ def graph_dec_tree(dec_tree):
       len_layer = len(dec_tree[i])
       coord_line_end.append([])
       for j, x in zip(range(len_layer), range(-len_layer, len_layer+1, 2)):
+          if len_layer % 2 == 0 and x == 0: continue
           if optimal[i] == dec_tree[i][j]:
               opt_coord_line.append([x, y])
-          if len_layer % 2 == 0 and x == 0: continue
           plt.scatter(x, y, color='green', s=1000, marker='o')
           if left_x > x: left_x = x
           if right_x < x: right_x = x
           coord_line_end[i].append([x,y])
           plt.text(x-0.3, y-0.1, dec_tree[i][j], fontdict=font)
-
   for i in range(len_tree-1): # рисуем линии
       for j in range(len(coord_line_end[i+1])):
           x1, y1, x2, y2 =  opt_coord_line[i] + coord_line_end[i+1][j]
@@ -127,7 +141,7 @@ if __name__ == "__main__":
 
     C1, T1 = rebase_matrix(C0, T0)  # матрицы после первого преобразования
     C2, T2 = second_rebase(C1, T1, Tz0) # матрицы после второго преобразования
-    dec_tree = decision_tree(C2, T2)
+    dec_tree, nodes = decision_tree(C2, T2)
 
     print("Преобразованная матрица C:")
     for i in range(len(C2)):
@@ -142,3 +156,5 @@ if __name__ == "__main__":
     print("Дерево решений:")
     for decision in dec_tree:
         print(str(decision).center(40))
+    
+    print(nodes)
