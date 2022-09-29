@@ -3,7 +3,7 @@ from tkinter import *
 from tkinter import ttk, messagebox
 import random as rnd
 from backend import *
-from threading import Thread
+from threading import Thread, local
 
 
 def del_all_obj(reload=False):
@@ -69,17 +69,19 @@ def set_matrix(set_random=False):
 
     
 
-def matrix_transformation(reload=False, local_time_limit=0):
+def matrix_transformation(reload=False, local_time_limit=0, output=True):
     """Производит вывод преобразованных матриц"""
-    if ~reload:
+    if not reload:
         try:
-            time_limit = float(str(time_limit_widget.get()))  # ограничение по времени
-            if time_limit < 0:
+            local_time_limit = float(str(time_limit_widget.get()))  # ограничение по времени
+            if local_time_limit < 0:
                 messagebox.showerror(title="Ошибка ввода", 
                     message="Значение ограничения по времени должно быть вещественным положительным числом. Или нулем, если вы хотите подобрать время автоматически.")
+                return
         except:
             messagebox.showerror(title="Ошибка ввода", 
                 message="Значение ограничения по времени должно быть вещественным положительным числом. Или нулем, если вы хотите подобрать время автоматически.")
+            return
     del_all_obj(reload=True)
     global C_matrix_value, T_matrix_value
     C_matrix_value = []; T_matrix_value = []
@@ -105,57 +107,62 @@ def matrix_transformation(reload=False, local_time_limit=0):
     global C1, C2, T1, T2
     C1, T1 = rebase_matrix(C_matrix_value, T_matrix_value)
 
-
-    # фреймы для вывода преобразованных матриц
-    global frame_C_first_rebase, frame_T_first_rebase, frame_C_second_rebase, frame_T_second_rebase
-    frame_C_first_rebase = tk.Frame(root, width=25*len(C_matrix[0]), height=20+20*len(C_matrix))#, background="#b22222")
-    frame_C_first_rebase.place(x=40+20*len(C_matrix[0]), y=120)
-    frame_T_first_rebase = tk.Frame(root, width=25*len(C_matrix[0]), height=20+20*len(T_matrix))#, background="#b22222")
-    frame_T_first_rebase.place(x=40+20*len(T_matrix[0]), y=160+20*len(C_matrix))
-    ttk.Label(frame_C_first_rebase, text="C1").place(x=0, y=0)
-    ttk.Label(frame_T_first_rebase, text="T1").place(x=0, y=0)
-    C_first_rebase_output = []; T_first_rebase_output = []
-    for i in range(len(C_matrix_value)):
-        C_first_rebase_output.append([]); T_first_rebase_output.append([])
-        for j in range(len(C_matrix_value[i])):
-            # Первое преобразование
-            temp_C_matrix = tk.Label(frame_C_first_rebase, width=3, text=C1[i][j]); temp_C_matrix.place(x=25*j, y=20+20*i)
-            temp_T_matrix = tk.Label(frame_T_first_rebase, width=3, text=T1[i][j]); temp_T_matrix.place(x=25*j, y=20+20*i)
-            C_first_rebase_output[i].append(temp_C_matrix); T_first_rebase_output[i].append(temp_T_matrix)
+    if output:
+        # фреймы для вывода преобразованных матриц
+        global frame_C_first_rebase, frame_T_first_rebase, frame_C_second_rebase, frame_T_second_rebase
+        frame_C_first_rebase = tk.Frame(root, width=25*len(C_matrix[0]), height=20+20*len(C_matrix))#, background="#b22222")
+        frame_C_first_rebase.place(x=40+20*len(C_matrix[0]), y=120)
+        frame_T_first_rebase = tk.Frame(root, width=25*len(C_matrix[0]), height=20+20*len(T_matrix))#, background="#b22222")
+        frame_T_first_rebase.place(x=40+20*len(T_matrix[0]), y=160+20*len(C_matrix))
+        ttk.Label(frame_C_first_rebase, text="C1").place(x=0, y=0)
+        ttk.Label(frame_T_first_rebase, text="T1").place(x=0, y=0)
+        C_first_rebase_output = []; T_first_rebase_output = []
+        for i in range(len(C_matrix_value)):
+            C_first_rebase_output.append([]); T_first_rebase_output.append([])
+            for j in range(len(C_matrix_value[i])):
+                # Первое преобразование
+                temp_C_matrix = tk.Label(frame_C_first_rebase, width=3, text=C1[i][j]); temp_C_matrix.place(x=25*j, y=20+20*i)
+                temp_T_matrix = tk.Label(frame_T_first_rebase, width=3, text=T1[i][j]); temp_T_matrix.place(x=25*j, y=20+20*i)
+                C_first_rebase_output[i].append(temp_C_matrix); T_first_rebase_output[i].append(temp_T_matrix)
 
     C2, T2 = second_rebase(C1, T1, local_time_limit)  # значения входных параметров изменяются внутри функции
 
-    frame_C_second_rebase = tk.Frame(root, width=25*len(C_matrix[0]), height=20+20*len(C_matrix))#, background="#b22222")
-    frame_C_second_rebase.place(x=120+2*20*len(C_matrix[0]), y=120)
-    frame_T_second_rebase = tk.Frame(root, width=25*len(T_matrix[0]), height=20+20*len(T_matrix))#, background="#b22222")
-    frame_T_second_rebase.place(x=120+2*20*len(T_matrix[0]), y=160+20*len(C_matrix))    
+    if output:
+        frame_C_second_rebase = tk.Frame(root, width=25*len(C_matrix[0]), height=20+20*len(C_matrix))#, background="#b22222")
+        frame_C_second_rebase.place(x=120+2*20*len(C_matrix[0]), y=120)
+        frame_T_second_rebase = tk.Frame(root, width=25*len(T_matrix[0]), height=20+20*len(T_matrix))#, background="#b22222")
+        frame_T_second_rebase.place(x=120+2*20*len(T_matrix[0]), y=160+20*len(C_matrix))    
 
-    ttk.Label(frame_C_second_rebase, text="C2").place(x=0, y=0)
-    ttk.Label(frame_T_second_rebase, text="T2").place(x=0, y=0)
-    C_second_rebase_output = []; T_second_rebase_output = []
-    for i in range(len(C_matrix_value)):
-        C_second_rebase_output.append([]); T_second_rebase_output.append([])
-        for j in range(len(C_matrix_value[i])):
-            # Второе преобразование
-            temp_C_matrix = tk.Label(frame_C_second_rebase, width=3, text=C2[i][j]); temp_C_matrix.place(x=25*j, y=20+20*i)
-            temp_T_matrix = tk.Label(frame_T_second_rebase, width=3, text=T2[i][j]); temp_T_matrix.place(x=25*j, y=20+20*i)
-            C_second_rebase_output[i].append(temp_C_matrix); T_second_rebase_output[i].append(temp_T_matrix)
+        ttk.Label(frame_C_second_rebase, text="C2").place(x=0, y=0)
+        ttk.Label(frame_T_second_rebase, text="T2").place(x=0, y=0)
+        C_second_rebase_output = []; T_second_rebase_output = []
+        for i in range(len(C_matrix_value)):
+            C_second_rebase_output.append([]); T_second_rebase_output.append([])
+            for j in range(len(C_matrix_value[i])):
+                # Второе преобразование
+                temp_C_matrix = tk.Label(frame_C_second_rebase, width=3, text=C2[i][j]); temp_C_matrix.place(x=25*j, y=20+20*i)
+                temp_T_matrix = tk.Label(frame_T_second_rebase, width=3, text=T2[i][j]); temp_T_matrix.place(x=25*j, y=20+20*i)
+                C_second_rebase_output[i].append(temp_C_matrix); T_second_rebase_output[i].append(temp_T_matrix)
 
 def time_recalculation():
     local_time_limit = time_limit# = int(str(time_limit_widget.get()))  # ограничение по времени
     global new_time_limit_widget
+    loading_label = ttk.Label(root, text="Идет перерасчет ограничения по времени...")
+    loading_label.place(x=250, y=250)
     while True:
         """Подбор ограничения по времени"""
         local_time_limit += 0.5
-        matrix_transformation(reload=True, local_time_limit=local_time_limit)
+        matrix_transformation(reload=True, local_time_limit=local_time_limit, output=False)
         try:
             dec_tree, nodes = decision_tree(C2, T2)
             graph_dec_tree(dec_tree)
-            new_time_limit_widget = ttk.Label(frm, text="Подобранное ограничение по времени " + str(local_time_limit))
-            new_time_limit_widget.grid(column=0, row=3)
             break
         except:
             pass
+    loading_label.destroy()
+    matrix_transformation(reload=True, local_time_limit=local_time_limit, output=True)
+    new_time_limit_widget = ttk.Label(frm, text="Подобранное ограничение по времени " + str(local_time_limit))
+    new_time_limit_widget.grid(column=0, row=3)
     global dec_tree_graph
     img = PhotoImage(file="decision_tree.png")
     dec_tree_graph = Label(root, image=img)
@@ -181,12 +188,29 @@ def decision_tree_graph():
     try:
         dec_tree, nodes = decision_tree(C2, T2)
         graph_dec_tree(dec_tree)
+        # Вывод графика
+        global dec_tree_graph
+        img = PhotoImage(file="decision_tree.png")
+        dec_tree_graph = Label(root, image=img)
+        dec_tree_graph.image_ref = img
+        dec_tree_graph.place(x=770, y=0)
+        # Узлы решений
+        global frame_nodes
+        frame_nodes = tk.Frame(root, width=50+20*len(nodes), height=40)#, background="#b22222")
+        frame_nodes.place(x=850, y=500)
+        ttk.Label(frame_nodes, text="Задачи").place(x=0, y=0)
+        ttk.Label(frame_nodes, text="Узлы").place(x=0, y=20)
+        for i in range(len(nodes)):
+            ttk.Label(frame_nodes, text=i+1, width=3).place(x=50+20*i, y=0)
+            ttk.Label(frame_nodes, text=nodes[i], width=3).place(x=50+20*i, y=20)
+        return
     except:
         messagebox.showwarning(title="Ошибка построения", 
                     message="Текущее ограничение по времени слишком мало и будет подобрано автоматически.")
     global thread_time_recalculate
     thread_time_recalculate = Thread(target=time_recalculation)
     thread_time_recalculate.start()
+
 
 
 
