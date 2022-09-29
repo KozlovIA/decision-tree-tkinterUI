@@ -91,20 +91,20 @@ def graph_dec_tree(dec_tree):
           'weight': 'normal',
           'size': 10,
           }
-  optimal = []
+  optimal = []  # оптимальные значения в каждом слое дерева
   for i in range(len(dec_tree)):
       optimal.append(dec_tree[i][0])
       for j in range(len(dec_tree[i])):
           if sum(optimal[i]) > sum(dec_tree[i][j]): optimal[i] = dec_tree[i][j]
 
-  len_tree = len(dec_tree)
-  opt_coord_line = []; coord_line_end = []
+  len_tree = len(dec_tree)  # размер дерева
+  opt_coord_line = []; coord_line_end = []  # координаты оптимального значения в слое и коорды конца линии в следующем слое
   left_x = right_x = 0
   for i, y in zip(range(len_tree), range(2*len_tree, 0, -2)):     # рисуем точки и записываем координаты для линий между ними
-      len_layer = len(dec_tree[i])
+      len_layer = len(dec_tree[i])  # размер текущего слоя
       coord_line_end.append([])
-      for j, x in zip(range(len_layer), range(-len_layer, len_layer+1, 2)):
-          if len_layer % 2 == 0 and x == 0: continue
+      for j, x in zip(range(len_layer), range(-len_layer, len_layer, 2)):
+          #if len_layer % 2 == 0 and x == 0: continue
           if optimal[i] == dec_tree[i][j]:
               opt_coord_line.append([x, y])
           plt.scatter(x, y, color='green', s=1000, marker='o')
@@ -138,10 +138,23 @@ if __name__ == "__main__":
      [8, 9, 8, 5]
     ]
     Tz0 = 26
+    """ C0 = [
+      [4, 3, 5, 1],
+      [2, 10, 16, 3],
+      [4, 6, 7, 9],
+      [2, 4, 5, 5]
+    ]
+    T0 = [
+      [3, 4, 14, 3],
+      [10, 5, 8, 4],
+      [4, 8, 7, 6],
+      [4, 3, 10, 9]
+    ] """
 
     C1, T1 = rebase_matrix(C0, T0)  # матрицы после первого преобразования
     C2, T2 = second_rebase(C1, T1, Tz0) # матрицы после второго преобразования
     dec_tree, nodes = decision_tree(C2, T2)
+    graph_dec_tree(dec_tree)
 
     print("Преобразованная матрица C:")
     for i in range(len(C2)):
