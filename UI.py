@@ -100,9 +100,17 @@ def matrix_transformation(reload=False, local_time_limit=0, output=True):
             try:
                 C_matrix_value[i][j] = float(C_matrix_value[i][j])
                 T_matrix_value[i][j] = float(T_matrix_value[i][j])
+                if C_matrix_value[i][j] <= 0 or T_matrix_value[i][j] <= 0:
+                    messagebox.showerror(title="Ошибка ввода", 
+                        message="Значения элементов матриц должны иметь вещественные положительные значения")
+                    return
+                if C_matrix_value[i][j] >= 1000000 or T_matrix_value[i][j] >= 1000000:
+                    messagebox.showerror(title="Ошибка ввода", 
+                        message="Значения элементов матриц должны быть меньше 1.000.000")
+                    return
             except:
                 messagebox.showerror(title="Ошибка ввода", 
-                    message="Значения элементов матриц должны иметь вещественные значения")
+                    message="Значения элементов матриц должны иметь вещественные положительные значения")
                 return
     global C1, C2, T1, T2
     C1, T1 = rebase_matrix(C_matrix_value, T_matrix_value)
