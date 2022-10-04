@@ -163,7 +163,7 @@ def time_recalculation():
         matrix_transformation(reload=True, local_time_limit=local_time_limit, output=False)
         try:
             dec_tree, nodes = decision_tree(C2, T2)
-            graph_dec_tree(dec_tree)
+            graph_dec_tree(dec_tree, time_limit=local_time_limit)
             break
         except:
             pass

@@ -77,7 +77,7 @@ def decision_tree(C, T):
     dec_tree.append(temp_tree)
   return dec_tree, nodes
 
-def graph_dec_tree(dec_tree):
+def graph_dec_tree(dec_tree, time_limit):
   """Функция сохраняет график дерева решений в файл decision_tree.png
   dec_tree - Входной параметр, дерево решений в виде списка со списками [[[]], []]"""
   fig, ax = plt.subplots(num=None, figsize=(8, 6), dpi=80, facecolor='w', edgecolor='k')
@@ -95,7 +95,8 @@ def graph_dec_tree(dec_tree):
   for i in range(len(dec_tree)):
       optimal.append(dec_tree[i][0])
       for j in range(len(dec_tree[i])):
-          if sum(optimal[i]) > sum(dec_tree[i][j]): optimal[i] = dec_tree[i][j]
+          if optimal[i][0] > dec_tree[i][j][0] and optimal[i][1] < time_limit: optimal[i] = dec_tree[i][j]
+          if optimal[i][0] > dec_tree[i][j][0] and optimal[i][1] < time_limit and sum(optimal[i]) < sum(dec_tree[i][j]): optimal[i] = dec_tree[i][j]
 
   len_tree = len(dec_tree)  # размер дерева
   opt_coord_line = []; coord_line_end = []  # координаты оптимального значения в слое и коорды конца линии в следующем слое
