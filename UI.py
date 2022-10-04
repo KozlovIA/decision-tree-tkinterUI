@@ -32,7 +32,7 @@ def set_matrix(set_random=False):
             time_limit = float(str(time_limit_widget.get()))  # ограничение по времени
         except:
             messagebox.showerror(title="Ошибка ввода", 
-                message="Значения строк и столбцов должны иметь целые значения.\nЗначение ограничения по времени должно быть вещественным  положительным числом. Или нулем, если вы хотите подобрать время автоматически.")
+                message="Значения строк и столбцов должны иметь целые значения.\nЗначение ограничения по времени должно быть вещественным положительным числом. Или нулем, если вы хотите подобрать время автоматически.")
             return
         if matr_col > 1 and matr_col <= 10 and matr_row > 1 and matr_row <= 10:
             break
@@ -152,7 +152,7 @@ def matrix_transformation(reload=False, local_time_limit=0, output=True):
                 temp_T_matrix = tk.Label(frame_T_second_rebase, width=3, text=T2[i][j]); temp_T_matrix.place(x=25*j, y=20+20*i)
                 C_second_rebase_output[i].append(temp_C_matrix); T_second_rebase_output[i].append(temp_T_matrix)
 
-def time_recalculation():
+def time_recalculation(time_limit=0):
     local_time_limit = time_limit# = int(str(time_limit_widget.get()))  # ограничение по времени
     global new_time_limit_widget
     loading_label = ttk.Label(root, text="Идет перерасчет ограничения по времени...")
@@ -189,35 +189,42 @@ def time_recalculation():
 
 
 def decision_tree_graph():
-    """Выводит график дерева решений в окно приложения, а так же узлы решения для задач""" 
+    """Выводит график дерева решений в окно приложения, а так же узлы решения для задач"""
     if frame_T_second_rebase.winfo_exists() != 1:
         messagebox.showerror(title="Ошибка!", message="Сначала задайте матрицы")
         return
     try:
-        dec_tree, nodes = decision_tree(C2, T2)
-        graph_dec_tree(dec_tree)
-        # Вывод графика
-        global dec_tree_graph
-        img = PhotoImage(file="decision_tree.png")
-        dec_tree_graph = Label(root, image=img)
-        dec_tree_graph.image_ref = img
-        dec_tree_graph.place(x=770, y=0)
-        # Узлы решений
-        global frame_nodes
-        frame_nodes = tk.Frame(root, width=50+20*len(nodes), height=40)#, background="#b22222")
-        frame_nodes.place(x=850, y=500)
-        ttk.Label(frame_nodes, text="Задачи").place(x=0, y=0)
-        ttk.Label(frame_nodes, text="Узлы").place(x=0, y=20)
-        for i in range(len(nodes)):
-            ttk.Label(frame_nodes, text=i+1, width=3).place(x=50+20*i, y=0)
-            ttk.Label(frame_nodes, text=nodes[i], width=3).place(x=50+20*i, y=20)
+        local_time_limit = int(str(time_limit_widget.get()))  # ограничение по времени
+    except:
+        messagebox.showerror(title="Ошибка ввода", 
+                message="Значение ограничения по времени должно быть вещественным положительным числом. Или нулем, если вы хотите подобрать время автоматически.")
         return
+    matrix_transformation(reload=False, local_time_limit=local_time_limit, output=True)     # Нужно лишь в случае изменения ограничения по времени
+    try:
+        dec_tree, nodes = decision_tree(C2, T2)
+        graph_dec_tree(dec_tree, local_time_limit)
     except:
         messagebox.showwarning(title="Ошибка построения", 
                     message="Текущее ограничение по времени слишком мало и будет подобрано автоматически.")
-    global thread_time_recalculate
-    thread_time_recalculate = Thread(target=time_recalculation)
-    thread_time_recalculate.start()
+        global thread_time_recalculate
+        thread_time_recalculate = Thread(target=time_recalculation, args=(local_time_limit,))
+        thread_time_recalculate.start()
+        return
+    # Вывод графика
+    global dec_tree_graph
+    img = PhotoImage(file="decision_tree.png")
+    dec_tree_graph = Label(root, image=img)
+    dec_tree_graph.image_ref = img
+    dec_tree_graph.place(x=770, y=0)
+    # Узлы решений
+    global frame_nodes
+    frame_nodes = tk.Frame(root, width=50+20*len(nodes), height=40)#, background="#b22222")
+    frame_nodes.place(x=850, y=500)
+    ttk.Label(frame_nodes, text="Задачи").place(x=0, y=0)
+    ttk.Label(frame_nodes, text="Узлы").place(x=0, y=20)
+    for i in range(len(nodes)):
+        ttk.Label(frame_nodes, text=i+1, width=3).place(x=50+20*i, y=0)
+        ttk.Label(frame_nodes, text=nodes[i], width=3).place(x=50+20*i, y=20)
 
 
 
